@@ -97,7 +97,12 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
     };
 
     // Calcular geração para cada membro
-    members.forEach(member => {
+    const processedMembers = members.map(member => ({
+      ...member,
+      birth_date: member.birth_date || ''
+    }));
+
+    processedMembers.forEach(member => {
       const generation = calculateGeneration(member);
       
       if (!generationMap.has(generation)) {
@@ -340,7 +345,7 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
                   <div className="grid gap-4 sm:gap-6 lg:gap-8" style={{ 
                     gridTemplateColumns: `repeat(${Math.min(generation.members.length, 6)}, 1fr)` 
                   }}>
-                    {generation.members.map((member, memberIndex) => (
+                    {generation.members.map((member, _memberIndex) => (
                       <div key={member.id} className="text-center">
                         {/* Linha de conexão vertical para este membro */}
                         <div className="flex justify-center mb-3 sm:mb-4">

@@ -8,7 +8,14 @@ import UserManagementModal from './components/UserManagementModal';
 import HierarchicalFamilyTree from './components/HierarchicalFamilyTree';
 import BirthdayNotifications from '../../components/feature/BirthdayNotifications';
 import { FamilyService } from '../../services/familyService';
-import { Family } from '../../lib/supabase';
+
+interface Family {
+  id: string;
+  name: string;
+  created_at: string;
+  members: number;
+  family_members?: any[];
+}
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<'tree' | 'profile' | 'family' | 'admin'>('tree');
@@ -160,7 +167,7 @@ export default function Dashboard() {
     if (isAdmin) return true;
     
     // Verificar se o usuário tem um papel que permite adicionar filhos
-    const userRole = localStorage.getItem('userRole');
+    // const userRole = localStorage.getItem('userRole');
     
     // Qualquer membro da família pode potencialmente ter filhos
     // Não apenas pais/mães, mas também filhos adultos (como Marcelo e Murilo)

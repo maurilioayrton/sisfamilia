@@ -113,8 +113,8 @@ export default function UserManagementModal({ onClose, families }: UserManagemen
     try {
       const userData = {
         username: newUser.username,
-        family_id: newUser.familyId || null,
-        member_id: newUser.memberId || null,
+        family_id: newUser.familyId || undefined,
+        member_id: newUser.memberId || undefined,
         user_type: newUser.userType,
         is_active: newUser.isActive
       };
