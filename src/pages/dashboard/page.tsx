@@ -12,8 +12,6 @@ import { FamilyService } from '../../services/familyService';
 interface Family {
   id: string;
   name: string;
-  created_at: string;
-  members: number;
   family_members?: any[];
 }
 
@@ -213,6 +211,8 @@ export default function Dashboard() {
     }
   };
 
+  // const userRole = user?.user_type; // Comentado pois não está sendo usado
+
   if (loading || migrating) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -372,11 +372,17 @@ export default function Dashboard() {
       </div>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {!isAdmin && currentFamily && connectionStatus === 'connected' && (
           <BirthdayNotifications currentFamily={currentFamily} />
         )}
-        
+
+        {selectedFamily?.family_members && selectedFamily.family_members.length > 0 && (
+          <div className="mb-6 sm:mb-8">
+            {/* ... existing code ... */}
+          </div>
+        )}
+
         {activeTab === 'tree' && <FamilyTree currentFamily={currentFamily} isAdmin={isAdmin} />}
         {activeTab === 'profile' && <PersonProfile />}
         {activeTab === 'family' && (

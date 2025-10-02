@@ -550,7 +550,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                               </button>
                               <button 
                                 onClick={() => handleAdminAction(member, 'delete')}
-                                className="bg-red-600 text-white px-2 py-1 rounded text-xs hover-bg-red-700 transition-colors"
+                                className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
                                 title="Excluir membro"
                               >
                                 <i className="ri-delete-bin-line"></i>

@@ -49,15 +49,21 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
       }
 
       // Buscar membros da família
-      const members = await FamilyService.getFamilyMembers(currentFamily);
+      const familyMembers = await FamilyService.getFamilyMembers(currentFamily);
+      
+      // Processar membros para garantir que birth_date seja sempre string
+      const processedMembers = familyMembers.map(member => ({
+        ...member,
+        birth_date: member.birth_date || ''
+      }));
       
       setFamilyData({
         name: family.name,
-        members: members || []
+        members: processedMembers || []
       });
 
       // Organizar em hierarquia
-      organizeHierarchy(members || []);
+      organizeHierarchy(processedMembers || []);
     } catch (error) {
       console.error('Erro ao carregar dados da família:', error);
       setFamilyData(null);
@@ -97,12 +103,7 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
     };
 
     // Calcular geração para cada membro
-    const processedMembers = members.map(member => ({
-      ...member,
-      birth_date: member.birth_date || ''
-    }));
-
-    processedMembers.forEach(member => {
+    members.forEach(member => {
       const generation = calculateGeneration(member);
       
       if (!generationMap.has(generation)) {
