@@ -34,7 +34,8 @@ export default function AddPersonModal({
     parentId: parentId || '',
     createUser: false,
     username: '',
-    password: ''
+    password: '',
+    is_deceased: false
   });
   
   const [loading, setLoading] = useState(false);
@@ -151,7 +152,8 @@ export default function AddPersonModal({
         photo_url: formData.photoUrl || undefined,
         role: memberRole,
         parent_id: formData.parentId || undefined,
-        created_by: localStorage.getItem('userId') || undefined
+        created_by: localStorage.getItem('userId') || undefined,
+        is_deceased: Boolean(formData.is_deceased)
       };
 
       const newMember = await FamilyService.addFamilyMember(memberData);
@@ -201,7 +203,8 @@ export default function AddPersonModal({
         parentId: parentId || '',
         createUser: false,
         username: '',
-        password: ''
+        password: '',
+        is_deceased: false
       });
 
       // Notificar componente pai
@@ -348,7 +351,9 @@ export default function AddPersonModal({
                   type="date"
                   value={formData.birthDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, birthDate: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-5
+
+                  focus:border-transparent"
                 />
               </div>
 

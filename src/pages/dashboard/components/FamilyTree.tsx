@@ -10,7 +10,6 @@ interface FamilyTreeProps {
 }
 
 export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) {
-  const [setSelectedPerson] = useState<(person: string | null) => void>(() => () => {});
   const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
   const [displayedMembers, setDisplayedMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -208,7 +207,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   // Buscar informações do pai/mãe de um membro
   const getParentInfo = (member: any) => {
     if (!member.parent_id || !familyData) return null;
-
     return familyData.members.find((m: any) => m.id === member.parent_id);
   };
 
@@ -279,9 +277,12 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
     if (!selectedMemberForAdmin) return;
 
     const totalToDelete = 1 + memberDescendants.length;
-    const confirmMessage = totalToDelete === 1 
-      ? `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}?\n\nEsta ação não pode ser desfeita!`
-      : `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} e todos os seus ${memberDescendants.length} descendentes?\n\nSerão excluídos:\n• ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}\n${memberDescendants.map(d => `• ${d.first_name} ${d.last_name}`).join('\n')}\n\nEsta ação NÃO PODE ser desfeita!`;
+    const confirmMessage =
+      totalToDelete === 1
+        ? `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}?\n\nEsta ação não pode ser desfeita!`
+        : `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} e todos os seus ${memberDescendants.length} descendentes?\n\nSerão excluídos:\n• ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}\n${memberDescendants
+            .map(d => `• ${d.first_name} ${d.last_name}`)
+            .join('\n')}\n\nEsta ação NÃO PODE ser desfeita!`;
 
     if (!confirm(confirmMessage)) {
       return;
@@ -317,7 +318,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
         // Excluir apenas o membro
         await FamilyService.deleteFamilyMember(selectedMemberForAdmin.id);
 
-        // Mostrar mensagem de sucesso
         const successMessage = document.createElement('div');
         successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
         successMessage.innerHTML = `
@@ -377,8 +377,8 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             <button
               onClick={() => setViewMode('tree')}
               className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors whitespace-nowrap ${
-                viewMode === 'tree' 
-                  ? 'bg-green-100 text-green-700' 
+                viewMode === 'tree'
+                  ? 'bg-green-100 text-green-700'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -388,8 +388,8 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             <button
               onClick={() => setViewMode('list')}
               className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors whitespace-nowrap ${
-                viewMode === 'list' 
-                  ? 'bg-green-100 text-green-700' 
+                viewMode === 'list'
+                  ? 'bg-green-100 text-green-700'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -424,8 +424,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             <div>
               <h4 className="font-medium text-green-800 mb-1 text-sm sm:text-base">Permissões de Edição</h4>
               <p className="text-xs sm:text-sm text-green-700">
-                Você pode editar todos os dados dos seus {userChildren.length} filhos. 
-                Clique no botão "Editar" ao lado do nome de cada filho para gerenciar suas informações.
+                Você pode editar todos os dados dos seus {userChildren.length} filhos. Clique no botão "Editar" ao lado do nome de cada filho para gerenciar suas informações.
               </p>
             </div>
           </div>
@@ -440,8 +439,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             <div>
               <h4 className="font-medium text-purple-800 mb-1 text-sm sm:text-base">Hierarquia Familiar</h4>
               <p className="text-xs sm:text-sm text-purple-700">
-                Como membro da família, você pode cadastrar seus filhos e continuar expandindo a árvore genealógica. 
-                Cada filho cadastrado poderá, no futuro, adicionar seus próprios filhos, garantindo a continuidade familiar.
+                Como membro da família, você pode cadastrar seus filhos e continuar expandindo a árvore genealógica. Cada filho cadastrado poderá, no futuro, adicionar seus próprios filhos, garantindo a continuidade familiar.
               </p>
             </div>
           </div>
@@ -456,8 +454,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             <div>
               <h4 className="font-medium text-red-800 mb-1 text-sm sm:text-base">Poderes Administrativos</h4>
               <p className="text-xs sm:text-sm text-red-700">
-                Como administrador, você pode alterar o parentesco de qualquer membro e excluir membros (incluindo todos os seus descendentes). 
-                Use os botões de ação ao lado de cada membro para gerenciar a hierarquia familiar.
+                Como administrador, você pode alterar o parentesco de qualquer membro e excluir membros (incluindo todos os seus descendentes). Use os botões de ação ao lado de cada membro para gerenciar a hierarquia familiar.
               </p>
             </div>
           </div>
@@ -476,14 +473,26 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                   const parentInfo = getParentInfo(member);
 
                   return (
-                    <div 
-                      key={member.id} 
+                    <div
+                      key={member.id}
                       className="mb-4 sm:mb-6"
                       ref={isLast ? lastMemberElementRef : null}
                     >
-                      <div className={`flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors ${isCurrentUser ? 'border-green-300 bg-green-50' : 'border-gray-200'}`}>
+                      <div
+                        className={`flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors ${
+                          isCurrentUser ? 'border-green-300 bg-green-50' : 'border-gray-200'
+                        }`}
+                      >
                         <div className="relative group">
-                          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden transition-all duration-300 group-hover:shadow-lg ${member.gender === 'masculino' ? 'group-hover:ring-4 group-hover:ring-blue-300' : member.gender === 'feminino' ? 'group-hover:ring-4 group-hover:ring-pink-300' : 'group-hover:ring-4 group-hover:ring-gray-300'}`}>
+                          <div
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden transition-all duration-300 group-hover:shadow-lg ${
+                              member.gender === 'masculino'
+                                ? 'group-hover:ring-4 group-hover:ring-blue-300'
+                                : member.gender === 'feminino'
+                                ? 'group-hover:ring-4 group-hover:ring-pink-300'
+                                : 'group-hover:ring-4 group-hover:ring-gray-300'
+                            }`}
+                          >
                             {member.photo_url ? (
                               <img
                                 src={member.photo_url}
@@ -497,9 +506,12 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                             )}
                           </div>
                         </div>
+
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                            <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">{member.first_name} {member.last_name}</h3>
+                            <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">
+                              {member.first_name} {member.last_name}
+                            </h3>
                             {isCurrentUser && (
                               <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap">
                                 Você
@@ -517,11 +529,10 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                             </p>
                           )}
                           {member.birth_date && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              {formatDateCorrectly(member.birth_date)}
-                            </p>
+                            <p className="text-xs text-gray-500 mt-1">{formatDateCorrectly(member.birth_date)}</p>
                           )}
                         </div>
+
                         <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                           <div className="flex flex-wrap gap-1">
                             {member.email && (
@@ -541,14 +552,14 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                           {/* Botões administrativos */}
                           {isAdmin && (
                             <div className="flex space-x-1">
-                              <button 
+                              <button
                                 onClick={() => handleAdminAction(member, 'edit_parent')}
                                 className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
                                 title="Alterar parentesco"
                               >
                                 <i className="ri-family-tree-line"></i>
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleAdminAction(member, 'delete')}
                                 className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
                                 title="Excluir membro"
@@ -560,7 +571,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
 
                           {/* Botão de editar para pais/mães editarem filhos */}
                           {canEdit && (
-                            <button 
+                            <button
                               onClick={() => handleEditMember(member)}
                               className="bg-blue-600 text-white px-2 sm:px-3 py-1 rounded-lg text-xs hover:bg-blue-700 transition-colors whitespace-nowrap font-medium"
                               title={`Editar dados de ${member.first_name}`}
@@ -606,14 +617,24 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                 const parentInfo = getParentInfo(member);
 
                 return (
-                  <div 
-                    key={member.id} 
-                    className={`border rounded-xl p-3 sm:p-4 hover:shadow-lg transition-all duration-300 ${isCurrentUser ? 'border-green-300 bg-green-50' : 'border-gray-200 hover:border-gray-300'}`}
+                  <div
+                    key={member.id}
+                    className={`border rounded-xl p-3 sm:p-4 hover:shadow-lg transition-all duration-300 ${
+                      isCurrentUser ? 'border-green-300 bg-green-50' : 'border-gray-200 hover:border-gray-300'
+                    }`}
                     ref={isLast ? lastMemberElementRef : null}
                   >
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="relative group">
-                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden transition-all duration-300 group-hover:shadow-lg ${member.gender === 'masculino' ? 'group-hover:ring-4 group-hover:ring-blue-300' : member.gender === 'feminino' ? 'group-hover:ring-4 group-hover:ring-pink-300' : 'group-hover:ring-4 group-hover:ring-gray-300'}`}>
+                        <div
+                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden transition-all duration-300 group-hover:shadow-lg ${
+                            member.gender === 'masculino'
+                              ? 'group-hover:ring-4 group-hover:ring-blue-300'
+                              : member.gender === 'feminino'
+                              ? 'group-hover:ring-4 group-hover:ring-pink-300'
+                              : 'group-hover:ring-4 group-hover:ring-gray-300'
+                          }`}
+                        >
                           {member.photo_url ? (
                             <img
                               src={member.photo_url}
@@ -629,7 +650,9 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                          <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">{member.first_name} {member.last_name}</h3>
+                          <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">
+                            {member.first_name} {member.last_name}
+                          </h3>
                           {isCurrentUser && (
                             <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
                               Você
@@ -674,14 +697,14 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                         {/* Botões administrativos */}
                         {isAdmin && (
                           <>
-                            <button 
+                            <button
                               onClick={() => handleAdminAction(member, 'edit_parent')}
                               className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
                               title="Alterar parentesco"
                             >
                               <i className="ri-family-tree-line"></i>
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleAdminAction(member, 'delete')}
                               className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
                               title="Excluir membro"
@@ -692,17 +715,19 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                         )}
 
                         {canEdit ? (
-                          <button 
+                          <button
                             onClick={() => handleEditMember(member)}
                             className="bg-blue-600 text-white px-2 sm:px-3 py-1 rounded-lg text-xs hover:bg-blue-700 transition-colors whitespace-nowrap font-medium"
                           >
                             <i className="ri-edit-line mr-1"></i>
                             <span className="hidden sm:inline">Editar</span>
                           </button>
-                        ) : !isAdmin && (
-                          <button className="text-blue-600 hover:text-blue-700 text-xs font-medium transition-colors">
-                            Ver detalhes
-                          </button>
+                        ) : (
+                          !isAdmin && (
+                            <button className="text-blue-600 hover:text-blue-700 text-xs font-medium transition-colors">
+                              Ver detalhes
+                            </button>
+                          )
                         )}
                       </div>
                     </div>
@@ -764,10 +789,9 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             {familyData ? 'Família sem membros' : 'Família não encontrada'}
           </h3>
           <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 max-w-md mx-auto">
-            {familyData 
+            {familyData
               ? 'Esta família ainda não possui membros cadastrados.'
-              : 'A família selecionada não foi encontrada no sistema.'
-            }
+              : 'A família selecionada não foi encontrada no sistema.'}
           </p>
           {canAddChildren && currentFamily && (
             <button
@@ -783,19 +807,19 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
 
       {/* Modal para adicionar pessoa/filho */}
       {showAddModal && (
-        <AddPersonModal 
-          onClose={() => setShowAddModal(false)} 
+        <AddPersonModal
+          onClose={() => setShowAddModal(false)}
           isAdmin={isAdmin}
           currentFamily={currentFamily}
-          families={[]} // Não precisa da lista de famílias aqui pois já temos a família atual
+          families={[]}
           onFamilyCreated={handleFamilyCreated}
-          parentId={userMemberId} // Passar o ID do usuário como pai
+          parentId={userMemberId}
         />
       )}
 
       {/* Modal para editar perfil de membro */}
       {showProfileModal && selectedMemberForEdit && (
-        <PersonProfile 
+        <PersonProfile
           member={selectedMemberForEdit}
           onClose={() => {
             setShowProfileModal(false);
@@ -815,8 +839,8 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                 <h2 className="text-xl font-bold text-gray-800">
                   {adminAction === 'edit_parent' ? 'Alterar Parentesco' : 'Excluir Membro'}
                 </h2>
-                <button 
-                  onClick={() => setShowAdminModal(false)} 
+                <button
+                  onClick={() => setShowAdminModal(false)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <i className="ri-close-line text-2xl"></i>
@@ -855,11 +879,11 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                     </label>
                     <select
                       value={newParentId}
-                      onChange={(e) => setNewParentId(e.target.value)}
+                      onChange={e => setNewParentId(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8"
                     >
                       <option value="">Nenhum pai/mãe (membro independente)</option>
-                      {potentialParents.map((parent) => (
+                      {potentialParents.map(parent => (
                         <option key={parent.id} value={parent.id}>
                           {parent.first_name} {parent.last_name} ({parent.role})
                         </option>
@@ -873,8 +897,8 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                       <div>
                         <h4 className="font-medium text-blue-800 mb-1">Alteração de Hierarquia</h4>
                         <p className="text-sm text-blue-700">
-                          Esta ação irá alterar a posição de {selectedMemberForAdmin.first_name} na árvore genealógica. 
-                          Todos os descendentes permanecerão vinculados a ele.
+                          Esta ação irá alterar a posição de {selectedMemberForAdmin.first_name} na árvore
+                          genealógica. Todos os descendentes permanecerão vinculados a ele.
                         </p>
                       </div>
                     </div>
@@ -904,7 +928,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                         Descendentes que também serão excluídos:
                       </h4>
                       <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
-                        {memberDescendants.map((descendant) => (
+                        {memberDescendants.map(descendant => (
                           <div key={descendant.id} className="flex items-center space-x-3 p-3 border-b border-gray-100 last:border-b-0">
                             <div className="w-8 h-8 rounded-full overflow-hidden">
                               {descendant.photo_url ? (
@@ -937,9 +961,9 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                       <div>
                         <h4 className="font-medium text-red-800 mb-1">Atenção: Exclusão Permanente</h4>
                         <p className="text-sm text-red-700">
-                          Esta ação irá excluir permanentemente {selectedMemberForAdmin.first_name} 
-                          {memberDescendants.length > 0 && ` e seus ${memberDescendants.length} descendentes`} 
-                          da família. Esta ação não pode ser desfeita.
+                          Esta ação irá excluir permanentemente {selectedMemberForAdmin.first_name}
+                          {memberDescendants.length > 0 && ` e seus ${memberDescendants.length} descendentes`} da família.
+                          Esta ação não pode ser desfeita.
                         </p>
                       </div>
                     </div>

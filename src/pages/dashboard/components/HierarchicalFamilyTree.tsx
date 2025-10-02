@@ -33,44 +33,30 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
 
   // Carregar dados da família
   const loadFamilyData = async () => {
-    if (!currentFamily) {
-      setFamilyData(null);
-      return;
-    }
-
     try {
       setLoading(true);
-      
-      // Buscar dados da família
-      const family = await FamilyService.getFamilyById(currentFamily);
-      if (!family) {
-        setFamilyData(null);
-        return;
-      }
-
-      // Buscar membros da família
       const familyMembers = await FamilyService.getFamilyMembers(currentFamily);
       
-      // Processar membros para garantir que birth_date seja sempre string
       const processedMembers: FamilyMember[] = familyMembers.map(member => ({
         ...member,
         birth_date: member.birth_date || ''
       }));
+      setMembers(processedMembers);
       
-      setFamilyData({
-        name: family.name,
-        members: processedMembers || []
-      });
-
-      // Organizar em hierarquia
-      organizeHierarchy(processedMembers || []);
+      // Construir hierarquia
+      buildHierarchy(processedMembers);
     } catch (error) {
       console.error('Erro ao carregar dados da família:', error);
-      setFamilyData(null);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (currentFamily) {
+      loadFamilyData();
+    }
+  }, [currentFamily]);
 
   // Organizar membros em hierarquia de gerações
   const organizeHierarchy = (members: FamilyMember[]) => {
@@ -134,10 +120,6 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
     setGenerations(generationsArray);
   };
 
-  useEffect(() => {
-    loadFamilyData();
-  }, [currentFamily]);
-
   const getDefaultPhoto = () => {
     return 'https://readdy.ai/api/search-image?query=professional%20family%20portrait%20placeholder%2C%20neutral%20background%2C%20elegant%20frame%2C%20genealogy%20tree%20member%20photo%2C%20classic%20family%20photography%20style&width=120&height=120&seq=family-member&orientation=squarish';
   };
@@ -159,6 +141,10 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
       case 5: return 'Trinetos';
       default: return `${level}ª Geração`;
     }
+  };
+
+  const renderMember = (member: FamilyMember, _memberIndex: number, level: number) => {
+    // ... existing code ...
   };
 
   if (!currentFamily && !isAdmin) {
