@@ -10,7 +10,7 @@ interface FamilyTreeProps {
 }
 
 export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) {
-  const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
+  const [setSelectedPerson] = useState<(person: string | null) => void>(() => () => {});
   const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
   const [displayedMembers, setDisplayedMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const [canAddChildren, setCanAddChildren] = useState(false);
   const [canEditMembers, setCanEditMembers] = useState(false);
   const [userChildren, setUserChildren] = useState<string[]>([]);
-  
+
   // Estados para funcionalidades administrativas
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [selectedMemberForAdmin, setSelectedMemberForAdmin] = useState<any>(null);
@@ -32,7 +32,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const [potentialParents, setPotentialParents] = useState<any[]>([]);
   const [newParentId, setNewParentId] = useState<string>('');
   const [memberDescendants, setMemberDescendants] = useState<any[]>([]);
-  
+
   const observer = useRef<IntersectionObserver>();
   const ITEMS_PER_PAGE = 6;
 
@@ -41,18 +41,18 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
     try {
       const userId = localStorage.getItem('userId');
       const userType = localStorage.getItem('userType');
-      
+
       if (userType === 'admin') {
         setCanAddChildren(true);
         setCanEditMembers(true);
         return;
       }
-      
+
       if (userId) {
         const userData = await FamilyService.getUserById(userId);
         if (userData && userData.member_id) {
           setUserMemberId(userData.member_id);
-          
+
           // Buscar dados do membro para verificar se pode ter filhos
           const member = await FamilyService.getMemberById(userData.member_id);
           if (member) {
@@ -61,13 +61,13 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             const isParent = parentRoles.includes(member.role || '');
             setCanAddChildren(isParent);
             setCanEditMembers(isParent);
-            
+
             console.log('👤 Verificando permissões para:', {
               nome: `${member.first_name} ${member.last_name}`,
               papel: member.role,
               podeAdicionarFilhos: isParent
             });
-            
+
             // Se pode ter filhos, buscar seus filhos para permitir edição
             if (isParent && currentFamily) {
               const familyMembers = await FamilyService.getFamilyMembers(currentFamily);
@@ -94,7 +94,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
 
     try {
       setLoading(true);
-      
+
       // Buscar dados da família
       const family = await FamilyService.getFamilyById(currentFamily);
       if (!family) {
@@ -104,7 +104,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
 
       // Buscar membros da família
       const members = await FamilyService.getFamilyMembers(currentFamily);
-      
+
       setFamilyData({
         name: family.name,
         members: members || []
@@ -122,23 +122,23 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
     if (!familyData || loading || !hasMore) return;
 
     setLoading(true);
-    
+
     setTimeout(() => {
       const startIndex = (page - 1) * ITEMS_PER_PAGE;
       const endIndex = startIndex + ITEMS_PER_PAGE;
       const newMembers = familyData.members.slice(startIndex, endIndex);
-      
+
       if (newMembers.length === 0) {
         setHasMore(false);
       } else {
         setDisplayedMembers(prev => [...prev, ...newMembers]);
         setPage(prev => prev + 1);
-        
+
         if (endIndex >= familyData.members.length) {
           setHasMore(false);
         }
       }
-      
+
       setLoading(false);
     }, 500);
   }, [familyData, loading, hasMore, page]);
@@ -184,7 +184,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const canEditMember = (member: any) => {
     if (isAdmin) return true; // Admin pode editar qualquer um
     if (!canEditMembers) return false; // Se não tem permissão geral, não pode editar
-    
+
     // Pai/Mãe pode editar apenas seus filhos
     return userChildren.includes(member.id);
   };
@@ -208,7 +208,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   // Buscar informações do pai/mãe de um membro
   const getParentInfo = (member: any) => {
     if (!member.parent_id || !familyData) return null;
-    
+
     return familyData.members.find((m: any) => m.id === member.parent_id);
   };
 
@@ -218,7 +218,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const handleAdminAction = async (member: any, action: 'edit_parent' | 'delete') => {
     setSelectedMemberForAdmin(member);
     setAdminAction(action);
-    
+
     if (action === 'edit_parent') {
       // Carregar potenciais pais
       const parents = await FamilyService.getPotentialParents(currentFamily, member.id);
@@ -229,20 +229,20 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
       const descendants = await FamilyService.getMemberDescendants(member.id);
       setMemberDescendants(descendants);
     }
-    
+
     setShowAdminModal(true);
   };
 
   // Alterar parentesco
   const handleChangeParent = async () => {
     if (!selectedMemberForAdmin) return;
-    
+
     try {
       setLoading(true);
-      
+
       const parentIdToSet = newParentId === '' ? null : newParentId;
       await FamilyService.changeMemberParent(selectedMemberForAdmin.id, parentIdToSet);
-      
+
       // Mostrar mensagem de sucesso
       const successMessage = document.createElement('div');
       successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
@@ -255,14 +255,14 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
           </div>
         </div>
       `;
-      
+
       document.body.appendChild(successMessage);
       setTimeout(() => {
         if (document.body.contains(successMessage)) {
           document.body.removeChild(successMessage);
         }
       }, 3000);
-      
+
       // Recarregar dados
       await handleFamilyCreated();
       setShowAdminModal(false);
@@ -277,23 +277,23 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   // Excluir membro e descendentes
   const handleDeleteMember = async () => {
     if (!selectedMemberForAdmin) return;
-    
+
     const totalToDelete = 1 + memberDescendants.length;
     const confirmMessage = totalToDelete === 1 
       ? `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}?\n\nEsta ação não pode ser desfeita!`
       : `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} e todos os seus ${memberDescendants.length} descendentes?\n\nSerão excluídos:\n• ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}\n${memberDescendants.map(d => `• ${d.first_name} ${d.last_name}`).join('\n')}\n\nEsta ação NÃO PODE ser desfeita!`;
-    
+
     if (!confirm(confirmMessage)) {
       return;
     }
-    
+
     try {
       setLoading(true);
-      
+
       if (memberDescendants.length > 0) {
         // Excluir em cascata
         const result = await FamilyService.deleteMemberAndDescendants(selectedMemberForAdmin.id);
-        
+
         // Mostrar mensagem de sucesso
         const successMessage = document.createElement('div');
         successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
@@ -306,7 +306,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             </div>
           </div>
         `;
-        
+
         document.body.appendChild(successMessage);
         setTimeout(() => {
           if (document.body.contains(successMessage)) {
@@ -316,7 +316,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
       } else {
         // Excluir apenas o membro
         await FamilyService.deleteFamilyMember(selectedMemberForAdmin.id);
-        
+
         // Mostrar mensagem de sucesso
         const successMessage = document.createElement('div');
         successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
@@ -329,7 +329,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             </div>
           </div>
         `;
-        
+
         document.body.appendChild(successMessage);
         setTimeout(() => {
           if (document.body.contains(successMessage)) {
@@ -337,7 +337,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
           }
         }, 3000);
       }
-      
+
       // Recarregar dados
       await handleFamilyCreated();
       setShowAdminModal(false);
@@ -360,7 +360,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             <span className="text-xs sm:text-sm text-blue-600">Visualizando como administrador</span>
           )}
         </div>
-        
+
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
           {/* Botão para adicionar filho - apenas para usuários com permissão */}
           {canAddChildren && currentFamily && (
@@ -372,7 +372,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
               {isAdmin ? 'Adicionar Pessoa' : 'Adicionar Filho'}
             </button>
           )}
-          
+
           <div className="flex space-x-2">
             <button
               onClick={() => setViewMode('tree')}
@@ -474,7 +474,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                   const isCurrentUser = userMemberId === member.id;
                   const canEdit = canEditMember(member);
                   const parentInfo = getParentInfo(member);
-                  
+
                   return (
                     <div 
                       key={member.id} 
@@ -537,7 +537,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                               </span>
                             )}
                           </div>
-                          
+
                           {/* Botões administrativos */}
                           {isAdmin && (
                             <div className="flex space-x-1">
@@ -557,7 +557,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                               </button>
                             </div>
                           )}
-                          
+
                           {/* Botão de editar para pais/mães editarem filhos */}
                           {canEdit && (
                             <button 
@@ -569,7 +569,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                               <span className="hidden sm:inline">Editar</span>
                             </button>
                           )}
-                          
+
                           <button className="text-gray-400 hover:text-gray-600 transition-colors p-1">
                             <i className="ri-more-line text-lg sm:text-xl"></i>
                           </button>
@@ -604,7 +604,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                 const isCurrentUser = userMemberId === member.id;
                 const canEdit = canEditMember(member);
                 const parentInfo = getParentInfo(member);
-                
+
                 return (
                   <div 
                     key={member.id} 
@@ -643,7 +643,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       {member.email && (
                         <p className="text-xs text-gray-600 flex items-center truncate">
@@ -664,12 +664,12 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="flex justify-between items-center mt-3 sm:mt-4 pt-3 border-t border-gray-100">
                       <span className="text-xs text-gray-500 font-medium truncate">
                         {member.birth_date ? formatDateCorrectly(member.birth_date) : 'Data não informada'}
                       </span>
-                      
+
                       <div className="flex space-x-1">
                         {/* Botões administrativos */}
                         {isAdmin && (
@@ -690,7 +690,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                             </button>
                           </>
                         )}
-                        
+
                         {canEdit ? (
                           <button 
                             onClick={() => handleEditMember(member)}

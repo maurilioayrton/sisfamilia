@@ -52,7 +52,7 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
       const familyMembers = await FamilyService.getFamilyMembers(currentFamily);
       
       // Processar membros para garantir que birth_date seja sempre string
-      const processedMembers = familyMembers.map(member => ({
+      const processedMembers: FamilyMember[] = familyMembers.map(member => ({
         ...member,
         birth_date: member.birth_date || ''
       }));
