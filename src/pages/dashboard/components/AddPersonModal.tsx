@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FamilyService } from '../../../services/familyService';
 
 interface AddPersonModalProps {
@@ -153,7 +153,9 @@ export default function AddPersonModal({
         role: memberRole,
         parent_id: formData.parentId || undefined,
         created_by: localStorage.getItem('userId') || undefined,
-        is_deceased: formData.is_deceased === true || formData.is_deceased === 'true'
+        is_deceased: typeof formData.is_deceased === 'boolean' 
+  ? formData.is_deceased 
+  : formData.is_deceased === 'true'
       };
 
       const newMember = await FamilyService.addFamilyMember(memberData);
@@ -453,7 +455,7 @@ export default function AddPersonModal({
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-5  focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -532,14 +534,14 @@ export default function AddPersonModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors whitespace-nowrap"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+                className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Salvando...' : (isCreatingFamily ? 'Criar Família' : 'Adicionar Pessoa')}
               </button>
