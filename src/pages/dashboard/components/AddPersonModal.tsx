@@ -153,7 +153,7 @@ export default function AddPersonModal({
         role: memberRole,
         parent_id: formData.parentId || undefined,
         created_by: localStorage.getItem('userId') || undefined,
-        is_deceased: formData.is_deceased === 'true' || formData.is_deceased === true
+        is_deceased: Boolean(formData.is_deceased && formData.is_deceased !== 'false')
       };
 
       const newMember = await FamilyService.addFamilyMember(memberData);
@@ -298,7 +298,7 @@ export default function AddPersonModal({
                     <select
                       value={formData.familyId}
                       onChange={(e) => setFormData(prev => ({ ...prev, familyId: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-5 focus:border-transparent pr-8"
                       required
                     >
                       <option value="">Selecione uma família</option>

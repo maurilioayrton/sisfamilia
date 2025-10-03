@@ -28,7 +28,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [migrating, setMigrating] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'testing' | 'connected' | 'error'>('testing');
-  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -297,7 +296,7 @@ export default function Dashboard() {
               <div className="ml-3">
                 <p className="text-xs sm:text-sm text-red-700">
                   <strong>Erro de Conexão:</strong> Não foi possível conectar ao Supabase. 
-                  Verifique as configurações de rede e tente novamente.
+                  Verifique as configurações de rede e tentar novamente.
                 </p>
                 <button 
                   onClick={initializeApp}
