@@ -33,53 +33,53 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const ITEMS_PER_PAGE = 6;
 
   // Verificar se o usuário pode adicionar filhos e editar membros
-  const checkUserPermissions = useCallback(async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      const userType = localStorage.getItem('userType');
+ const checkUserPermissions = useCallback(async () => {
+  try {
+    const userId = localStorage.getItem('userId');
+    const userType = localStorage.getItem('userType');
 
-      if (userType === 'admin') {
-        setCanAddChildren(true);
-        setCanEditMembers(true);
-        return;
-      }
+    if (userType === 'admin') {
+      setCanAddChildren(true);
+      setCanEditMembers(true);
+      return;
+    }
 
-      if (userId) {
-        const userData = await FamilyService.getUserById(userId);
-        if (userData && userData.member_id) {
-          setUserMemberId(userData.member_id);
+    if (userId) {
+      const userData = await FamilyService.getUserById(userId); // ✅ Agora com argumento
+      if (userData && userData.member_id) {
+        setUserMemberId(userData.member_id);
 
-          // Buscar dados do membro para verificar se pode ter filhos
-          const member = await FamilyService.getMemberById(userData.member_id);
-          if (member) {
-            // ATUALIZADO: Verificar se o papel permite ter filhos - incluindo irmãos
-            const parentRoles = ['Pai', 'Mãe', 'Patriarca', 'Matriarca', 'Filho', 'Filha'];
-            const isParent = parentRoles.includes(member.role || '');
-            setCanAddChildren(isParent);
-            setCanEditMembers(isParent);
+        // Buscar dados do membro para verificar se pode ter filhos
+        const member = await FamilyService.getMemberById(userData.member_id);
+        if (member) {
+          // ATUALIZADO: Verificar se o papel permite ter filhos - incluindo irmãos
+          const parentRoles = ['Pai', 'Mãe', 'Patriarca', 'Matriarca', 'Filho', 'Filha'];
+          const isParent = parentRoles.includes(member.role || '');
+          setCanAddChildren(isParent);
+          setCanEditMembers(isParent);
 
-            console.log('👤 Verificando permissões para:', {
-              nome: `${member.first_name} ${member.last_name}`,
-              papel: member.role,
-              podeAdicionarFilhos: isParent
-            });
+          console.log('👤 Verificando permissões para:', {
+            nome: `${member.first_name} ${member.last_name}`,
+            papel: member.role,
+            podeAdicionarFilhos: isParent
+          });
 
-            // Se pode ter filhos, buscar seus filhos para permitir edição
-            if (isParent && currentFamily) {
-              const familyMembers = await FamilyService.getFamilyMembers(currentFamily);
-              const children = familyMembers.filter(m => m.parent_id === member.id);
-              setUserChildren(children.map(c => c.id));
-              console.log('👶 Filhos do usuário:', children.map(c => `${c.first_name} ${c.last_name}`));
-            }
+          // Se pode ter filhos, buscar seus filhos para permitir edição
+          if (isParent && currentFamily) {
+            const familyMembers = await FamilyService.getFamilyMembers(currentFamily);
+            const children = familyMembers.filter(m => m.parent_id === member.id);
+            setUserChildren(children.map(c => c.id));
+            console.log('👶 Filhos do usuário:', children.map(c => `${c.first_name} ${c.last_name}`));
           }
         }
       }
-    } catch (error) {
-      console.error('Erro ao verificar permissões:', error);
-      setCanAddChildren(false);
-      setCanEditMembers(false);
     }
-  }, [currentFamily]);
+  } catch (error) {
+    console.error('Erro ao verificar permissões:', error);
+    setCanAddChildren(false);
+    setCanEditMembers(false);
+  }
+}, [currentFamily]);
 
   // Carregar dados da família do Supabase
   const loadFamilyData = useCallback(async () => {
