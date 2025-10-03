@@ -44,7 +44,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
       }
 
       if (userId) {
-        const userData = await FamilyService.getUserById(userId);
+        const userData = await FamilyService.getUserById(userId); // ✅ CORRIGIDO: agora com userId
         if (userData && userData.member_id) {
           setUserMemberId(userData.member_id);
 
