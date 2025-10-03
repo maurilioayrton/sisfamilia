@@ -42,23 +42,17 @@ export default function Dashboard() {
     if (userType === 'admin') {
       isUserAdmin = true;
     } else if (user) {
-      // CORREÇÃO: Verificar se o valor é um JSON válido antes de tentar parsear
       try {
-        // Se o valor começa com '{', é provável que seja JSON
         if (user.startsWith('{')) {
           const userData = JSON.parse(user);
-          // Se não tem member_id, é admin
           if (!userData.member_id) {
             isUserAdmin = true;
           }
         } else {
-          // Se não é JSON, é apenas o username (string simples)
           console.log('User data é uma string simples (username):', user);
-          // Neste caso, não é admin (admin seria identificado pelo userType)
         }
       } catch (error) {
         console.error('Erro ao parsear dados do usuário:', error);
-        // Se der erro no parse, tratar como string simples
         console.log('Tratando como username simples:', user);
       }
     }

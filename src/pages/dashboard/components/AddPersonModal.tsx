@@ -413,7 +413,7 @@ export default function AddPersonModal({
                   value={formData.parentId}
                   onChange={(e) => setFormData(prev => ({ ...prev, parentId: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8"
-                  disabled={!isAdmin && parentId !== null && parentId !== ''} // Se não é admin e tem parentId definido, desabilitar
+                  disabled={!isAdmin && parentId !== null && parentId !== ''}
                 >
                   <option value="">Nenhum (membro independente)</option>
                   {availableParents.map((parent) => (
@@ -453,7 +453,7 @@ export default function AddPersonModal({
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-5  focus:border-transparent"
                 />
               </div>
             </div>
