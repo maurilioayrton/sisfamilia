@@ -153,9 +153,7 @@ export default function AddPersonModal({
         role: memberRole,
         parent_id: formData.parentId || undefined,
         created_by: localStorage.getItem('userId') || undefined,
-        is_deceased: typeof formData.is_deceased === 'boolean' 
-  ? formData.is_deceased 
-  : formData.is_deceased === 'true'
+        is_deceased: formData.is_deceased === true || formData.is_deceased === 'true'
       };
 
       const newMember = await FamilyService.addFamilyMember(memberData);
