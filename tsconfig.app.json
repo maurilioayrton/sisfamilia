@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
@@ -25,7 +24,8 @@
     "resolveJsonModule": true,
     "declaration": false,
     "declarationMap": false,
-    "sourceMap": false
+    "sourceMap": false,
+    "types": ["react", "react-dom", "node"]
   },
   "include": ["src", "src/**/*", "src/types/react.d.ts"],
   "exclude": ["node_modules", "dist", "build"]
