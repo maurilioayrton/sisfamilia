@@ -13,6 +13,8 @@ interface Family {
   id: string;
   name: string;
   family_members?: any[];
+  members?: number;
+  created_at?: string;
 }
 
 export default function Dashboard() {
@@ -26,6 +28,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [migrating, setMigrating] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'testing' | 'connected' | 'error'>('testing');
+  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -210,8 +213,6 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
-
-  // const userRole = user?.user_type; // Comentado pois não está sendo usado
 
   if (loading || migrating) {
     return (
@@ -407,12 +408,14 @@ export default function Dashboard() {
                         <div className="flex items-center justify-between mb-3 sm:mb-4">
                           <h3 className="text-base sm:text-lg font-medium text-gray-800 truncate">{family.name}</h3>
                           <span className="bg-green-100 text-green-800 text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap">
-                            {family.members} membros
+                            {family.members || 0} membros
                           </span>
                         </div>
                         <div className="text-xs text-gray-500 mb-3 sm:mb-4">
                           <p>ID: {family.id}</p>
-                          <p>Criada: {new Date(family.created_at).toLocaleDateString('pt-BR')}</p>
+                          {family.created_at && (
+                            <p>Criada: {new Date(family.created_at).toLocaleDateString('pt-BR')}</p>
+                          )}
                         </div>
                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                           <button 
@@ -461,6 +464,7 @@ export default function Dashboard() {
             )}
           </div>
         )}
+
         {activeTab === 'admin' && isAdmin && (
           <div className="space-y-4 sm:space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">

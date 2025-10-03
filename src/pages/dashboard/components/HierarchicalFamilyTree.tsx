@@ -154,10 +154,6 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
     }
   };
 
-  const renderMember = (member: FamilyMember, _memberIndex: number, level: number) => {
-    return null;
-  };
-
   if (!currentFamily && !isAdmin) {
     return (
       <div className="bg-white rounded-lg shadow p-6">

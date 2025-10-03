@@ -401,7 +401,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
         successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
         successMessage.innerHTML = `
           <div class="flex items-center space-x-3">
-            <i class="ri-check-circle-line text-green-600 text-xl"></i>
+            <i className="ri-check-circle-line text-green-600 text-xl"></i>
             <div>
               <p class="font-medium text-green-800">Membro Excluído!</p>
               <p class="text-sm text-green-700">${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} foi removido da família.</p>
