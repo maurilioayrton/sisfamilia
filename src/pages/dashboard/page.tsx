@@ -377,12 +377,6 @@ export default function Dashboard() {
           <BirthdayNotifications currentFamily={currentFamily} />
         )}
 
-        {selectedFamily?.family_members && selectedFamily.family_members.length > 0 && (
-          <div className="mb-6 sm:mb-8">
-            {/* ... existing code ... */}
-          </div>
-        )}
-
         {activeTab === 'tree' && <FamilyTree currentFamily={currentFamily} isAdmin={isAdmin} />}
         {activeTab === 'profile' && <PersonProfile />}
         {activeTab === 'family' && (
@@ -422,7 +416,7 @@ export default function Dashboard() {
                               setCurrentFamily(family.id);
                               setActiveTab('tree');
                             }}
-                            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-xs sm:text-sm hover:bg-blue-700 transition-colors whitespace-nowrap"
+                            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-xs sm:text-sm hover-bg-blue-700 transition-colors whitespace-nowrap"
                           >
                             Visualizar
                           </button>
@@ -579,7 +573,7 @@ export default function Dashboard() {
                       <p className="font-medium text-gray-800 text-sm sm:text-base">Backup</p>
                       <p className="text-xs sm:text-sm text-gray-600">Backup e restauração de dados</p>
                     </div>
-                  </button>
+                    </button>
                 </div>
               </div>
 

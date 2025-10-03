@@ -401,7 +401,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
         successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
         successMessage.innerHTML = `
           <div class="flex items-center space-x-3">
-            <i className="ri-check-circle-line text-green-600 text-xl"></i>
+            <i class="ri-check-circle-line text-green-600 text-xl"></i>
             <div>
               <p class="font-medium text-green-800">Membro Excluído!</p>
               <p class="text-sm text-green-700">${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} foi removido da família.</p>
@@ -875,28 +875,26 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
           {canAddChildren && currentFamily && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-green-700 transition-colors whitespace-nowrap text-sm sm:text-base"
+              className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
             >
-              <i className="ri-user-add-line mr-1 sm:mr-2"></i>
-              {isAdmin ? 'Adicionar Primeira Pessoa' : 'Adicionar Primeiro Filho'}
+              Adicionar primeiro membro
             </button>
           )}
         </div>
       )}
 
-      {/* Modal para adicionar pessoa/filho */}
+      {/* Modal de Adição */}
       {showAddModal && (
         <AddPersonModal
           onClose={() => setShowAddModal(false)}
-          isAdmin={isAdmin}
-          currentFamily={currentFamily}
-          families={[]}
           onFamilyCreated={handleFamilyCreated}
-          parentId={userMemberId}
+          currentFamily={currentFamily}
+          isAdmin={isAdmin}
+          userMemberId={userMemberId}
         />
       )}
 
-      {/* Modal para editar perfil de membro */}
+      {/* Modal de Edição */}
       {showProfileModal && selectedMemberForEdit && (
         <PersonProfile
           member={selectedMemberForEdit}
@@ -904,163 +902,97 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             setShowProfileModal(false);
             setSelectedMemberForEdit(null);
           }}
-          onUpdate={handleFamilyCreated}
-          isEditingChild={true}
+          onFamilyCreated={handleFamilyCreated}
+          isAdmin={isAdmin}
         />
       )}
 
-      {/* Modal administrativo */}
+      {/* Modal Administrativo */}
       {showAdminModal && selectedMemberForAdmin && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-800">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-gray-800">
                   {adminAction === 'edit_parent' ? 'Alterar Parentesco' : 'Excluir Membro'}
-                </h2>
+                </h3>
                 <button
                   onClick={() => setShowAdminModal(false)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  <i className="ri-close-line text-2xl"></i>
+                  <i className="ri-close-line text-xl"></i>
                 </button>
               </div>
 
-              <div className="mb-6">
-                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-12 h-12 rounded-full overflow-hidden">
-                    {selectedMemberForAdmin.photo_url ? (
-                      <img
-                        src={selectedMemberForAdmin.photo_url}
-                        alt={`${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}`}
-                        className="w-12 h-12 rounded-full object-cover object-top"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                        <i className="ri-user-line text-xl text-gray-500"></i>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">
-                      {selectedMemberForAdmin.first_name} {selectedMemberForAdmin.last_name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{selectedMemberForAdmin.role}</p>
-                  </div>
-                </div>
-              </div>
-
               {adminAction === 'edit_parent' ? (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Novo Pai/Mãe
+                <div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Selecione um novo pai/mãe para {selectedMemberForAdmin.first_name} {selectedMemberForAdmin.last_name}
+                  </p>
+                  <div className="space-y-3">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Pai/Mãe
+                      <select
+                        value={newParentId}
+                        onChange={(e) => setNewParentId(e.target.value)}
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-green-500 focus:outline-none focus:ring-green-500 sm:text-sm"
+                      >
+                        <option value="">Nenhum (raiz da árvore)</option>
+                        {potentialParents.map((parent) => (
+                          <option key={parent.id} value={parent.id}>
+                            {parent.first_name} {parent.last_name} ({parent.role})
+                          </option>
+                        ))}
+                      </select>
                     </label>
-                    <select
-                      value={newParentId}
-                      onChange={e => setNewParentId(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8"
-                    >
-                      <option value="">Nenhum pai/mãe (membro independente)</option>
-                      {potentialParents.map(parent => (
-                        <option key={parent.id} value={parent.id}>
-                          {parent.first_name} {parent.last_name} ({parent.role})
-                        </option>
-                      ))}
-                    </select>
                   </div>
-
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <i className="ri-information-line text-blue-600 text-lg flex-shrink-0 mt-0.5"></i>
-                      <div>
-                        <h4 className="font-medium text-blue-800 mb-1">Alteração de Hierarquia</h4>
-                        <p className="text-sm text-blue-700">
-                          Esta ação irá alterar a posição de {selectedMemberForAdmin.first_name} na árvore
-                          genealógica. Todos os descendentes permanecerão vinculados a ele.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-3">
+                  <div className="mt-6 flex justify-end space-x-3">
                     <button
                       onClick={() => setShowAdminModal(false)}
-                      className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={handleChangeParent}
                       disabled={loading}
-                      className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                     >
-                      {loading ? 'Alterando...' : 'Alterar Parentesco'}
+                      {loading ? 'Alterando...' : 'Alterar'}
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {memberDescendants.length > 0
+                      ? `Você está prestes a excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} e todos os seus ${memberDescendants.length} descendentes.`
+                      : `Você está prestes a excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}.`}
+                  </p>
                   {memberDescendants.length > 0 && (
-                    <div>
-                      <h4 className="font-medium text-gray-800 mb-3">
-                        Descendentes que também serão excluídos:
-                      </h4>
-                      <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
-                        {memberDescendants.map(descendant => (
-                          <div key={descendant.id} className="flex items-center space-x-3 p-3 border-b border-gray-100 last:border-b-0">
-                            <div className="w-8 h-8 rounded-full overflow-hidden">
-                              {descendant.photo_url ? (
-                                <img
-                                  src={descendant.photo_url}
-                                  alt={`${descendant.first_name} ${descendant.last_name}`}
-                                  className="w-8 h-8 rounded-full object-cover object-top"
-                                />
-                              ) : (
-                                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                  <i className="ri-user-line text-sm text-gray-500"></i>
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-800 text-sm">
-                                {descendant.first_name} {descendant.last_name}
-                              </p>
-                              <p className="text-xs text-gray-600">{descendant.role}</p>
-                            </div>
-                          </div>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 max-h-40 overflow-y-auto">
+                      <p className="text-xs text-red-700 mb-2">Descendentes que serão excluídos:</p>
+                      <ul className="text-xs text-red-600 space-y-1">
+                        <li>• {selectedMemberForAdmin.first_name} {selectedMemberForAdmin.last_name} (este membro)</li>
+                        {memberDescendants.map((desc) => (
+                          <li key={desc.id}>• {desc.first_name} {desc.last_name}</li>
                         ))}
-                      </div>
+                      </ul>
                     </div>
                   )}
-
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <i className="ri-error-warning-line text-red-600 text-lg flex-shrink-0 mt-0.5"></i>
-                      <div>
-                        <h4 className="font-medium text-red-800 mb-1">Atenção: Exclusão Permanente</h4>
-                        <p className="text-sm text-red-700">
-                          Esta ação irá excluir permanentemente {selectedMemberForAdmin.first_name}
-                          {memberDescendants.length > 0 && ` e seus ${memberDescendants.length} descendentes`} da família.
-                          Esta ação não pode ser desfeita.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-3">
+                  <div className="mt-6 flex justify-end space-x-3">
                     <button
                       onClick={() => setShowAdminModal(false)}
-                      className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={handleDeleteMember}
                       disabled={loading}
-                      className="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
                     >
-                      {loading ? 'Excluindo...' : `Excluir ${memberDescendants.length > 0 ? `${1 + memberDescendants.length} Membros` : 'Membro'}`}
+                      {loading ? 'Excluindo...' : 'Excluir'}
                     </button>
                   </div>
                 </div>
