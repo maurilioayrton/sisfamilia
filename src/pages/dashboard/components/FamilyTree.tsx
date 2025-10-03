@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { FamilyService } from '../../../services/familyService';
 import AddPersonModal from './AddPersonModal';
@@ -44,7 +45,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
       }
 
       if (userId) {
-        const userData = await FamilyService.getUserById(userId); // ✅ CORRIGIDO: agora com userId
+        const userData = await FamilyService.getUserById(userId);
         if (userData && userData.member_id) {
           setUserMemberId(userData.member_id);
 
@@ -172,7 +173,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const handleFamilyCreated = async () => {
     console.log('Membro adicionado, recarregando dados...');
     await loadFamilyData();
-    await checkUserPermissions(); // Recarregar permissões após adicionar membro
+    checkUserPermissions(); // Recarregar permissões após adicionar membro
   };
 
   // Verificar se o usuário pode editar um membro específico
@@ -236,7 +237,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
               className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 viewMode === 'tree'
                   ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-700 hover-bg-gray-200'
               }`}
             >
               <i className="ri-family-tree-line mr-1"></i>
@@ -247,7 +248,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
               className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 viewMode === 'list'
                   ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-700 hover-bg-gray-200'
               }`}
             >
               <i className="ri-list-unordered mr-1"></i>
@@ -292,7 +293,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
       {!isAdmin && canAddChildren && currentFamily && (
         <div className="mb-4 sm:mb-6 bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4">
           <div className="flex items-start space-x-3">
-            <i className="ri-family-tree-line text-purple-600 text-lg flex-shrink-0 mt-0-5"></i>
+            <i className="ri-family-tree-line text-purple-600 text-lg flex-shrink-0 mt-0.5"></i>
             <div>
               <h4 className="font-medium text-purple-800 mb-1 text-sm sm:text-base">Hierarquia Familiar</h4>
               <p className="text-xs sm:text-sm text-purple-700">
