@@ -416,7 +416,7 @@ export default function Dashboard() {
                               setCurrentFamily(family.id);
                               setActiveTab('tree');
                             }}
-                            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-xs sm:text-sm hover-bg-blue-700 transition-colors whitespace-nowrap"
+                            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-xs sm:text-sm hover:bg-blue-700 transition-colors whitespace-nowrap"
                           >
                             Visualizar
                           </button>

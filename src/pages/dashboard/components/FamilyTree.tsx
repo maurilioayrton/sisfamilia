@@ -5,10 +5,6 @@ import AddPersonModal from './AddPersonModal';
 import PersonProfile from './PersonProfile';
 
 type FamilyMember = any;
-type Generation = {
-  level: number;
-  members: FamilyMember[];
-};
 
 interface FamilyTreeProps {
   currentFamily: string;
@@ -37,11 +33,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const [potentialParents, setPotentialParents] = useState<any[]>([]);
   const [newParentId, setNewParentId] = useState<string>('');
   const [memberDescendants, setMemberDescendants] = useState<any[]>([]);
-
-  // Novos estados para hierarquia
-  const [patriarch, setPatriarch] = useState<FamilyMember | null>(null);
-  const [matriarch, setMatriarch] = useState<FamilyMember | null>(null);
-  const [generations, setGenerations] = useState<Generation[]>([]);
 
   const observer = useRef<IntersectionObserver>();
   const ITEMS_PER_PAGE = 6;
@@ -119,11 +110,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
         name: family.name,
         members: members || []
       });
-
-      // Organizar hierarquia após carregar membros
-      if (members) {
-        buildHierarchy(members);
-      }
     } catch (error) {
       console.error('Erro ao carregar dados da família:', error);
       setFamilyData(null);
@@ -131,69 +117,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
       setLoading(false);
     }
   }, [currentFamily]);
-
-  // Organizar membros em hierarquia de gerações
-  const buildHierarchy = (members: FamilyMember[]) => {
-    // Encontrar patriarca e matriarca (sem parent_id e com roles específicos)
-    const patriarchMember = members.find(m =>
-      !m.parent_id && (m.role === 'Patriarca' || (m.role === 'Pai' && m.gender === 'masculino'))
-    );
-
-    const matriarchMember = members.find(m =>
-      !m.parent_id && (m.role === 'Matriarca' || (m.role === 'Mãe' && m.gender === 'feminino'))
-    );
-
-    setPatriarch(patriarchMember || null);
-    setMatriarch(matriarchMember || null);
-
-    // Organizar por gerações
-    const generationMap = new Map<number, FamilyMember[]>();
-
-    // Função recursiva para calcular nível de geração
-    const calculateGeneration = (member: FamilyMember, visited = new Set<string>()): number => {
-      if (visited.has(member.id)) return 0; // Evitar loops infinitos
-      visited.add(member.id);
-
-      if (!member.parent_id) return 1; // Primeira geração (patriarca/matriarca)
-
-      const parent = members.find(m => m.id === member.parent_id);
-      if (!parent) return 1;
-
-      return calculateGeneration(parent, visited) + 1;
-    };
-
-    // Calcular geração para cada membro
-    members.forEach(member => {
-      const generation = calculateGeneration(member);
-
-      if (!generationMap.has(generation)) {
-        generationMap.set(generation, []);
-      }
-
-      generationMap.get(generation)!.push(member);
-    });
-
-    // Converter para array ordenado
-    const generationsArray: Generation[] = [];
-    const maxLevel = Math.max(...Array.from(generationMap.keys()));
-    for (let level = 1; level <= maxLevel; level++) {
-      const membersInLevel = generationMap.get(level) || [];
-      if (membersInLevel.length > 0) {
-        generationsArray.push({
-          level,
-          members: membersInLevel.sort((a, b) => {
-            // Ordenar por data de nascimento se disponível
-            if (a.birth_date && b.birth_date) {
-              return new Date(a.birth_date).getTime() - new Date(b.birth_date).getTime();
-            }
-            return a.first_name.localeCompare(b.first_name);
-          })
-        });
-      }
-    }
-
-    setGenerations(generationsArray);
-  };
 
   // Função para carregar mais membros
   const loadMoreMembers = useCallback(() => {
@@ -890,7 +813,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
           onFamilyCreated={handleFamilyCreated}
           currentFamily={currentFamily}
           isAdmin={isAdmin}
-          userMemberId={userMemberId}
+          families={[]}
         />
       )}
 
@@ -902,8 +825,8 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
             setShowProfileModal(false);
             setSelectedMemberForEdit(null);
           }}
-          onFamilyCreated={handleFamilyCreated}
-          isAdmin={isAdmin}
+          onUpdate={handleFamilyCreated}
+          isEditingChild={true}
         />
       )}
 
