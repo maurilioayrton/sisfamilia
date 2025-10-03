@@ -38,10 +38,21 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
       const familyMembers = await FamilyService.getFamilyMembers(currentFamily);
       
       const processedMembers: FamilyMember[] = familyMembers.map(member => ({
-        ...member,
-        birth_date: member.birth_date || ''
+        id: member.id,
+        first_name: member.first_name,
+        last_name: member.last_name,
+        birth_date: member.birth_date || '',
+        photo_url: member.photo_url,
+        role: member.role,
+        parent_id: member.parent_id,
+        gender: member.gender || '',
+        family_id: member.family_id
       }));
-      setMembers(processedMembers);
+      
+      setFamilyData({
+        name: 'Família',
+        members: processedMembers
+      });
       
       // Construir hierarquia
       buildHierarchy(processedMembers);
@@ -59,7 +70,7 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
   }, [currentFamily]);
 
   // Organizar membros em hierarquia de gerações
-  const organizeHierarchy = (members: FamilyMember[]) => {
+  const buildHierarchy = (members: FamilyMember[]) => {
     // Encontrar patriarca e matriarca (sem parent_id e com roles específicos)
     const patriarchMember = members.find(m => 
       !m.parent_id && (m.role === 'Patriarca' || (m.role === 'Pai' && m.gender === 'masculino'))
@@ -144,7 +155,7 @@ export default function HierarchicalFamilyTree({ currentFamily, isAdmin }: Hiera
   };
 
   const renderMember = (member: FamilyMember, _memberIndex: number, level: number) => {
-    // ... existing code ...
+    return null;
   };
 
   if (!currentFamily && !isAdmin) {

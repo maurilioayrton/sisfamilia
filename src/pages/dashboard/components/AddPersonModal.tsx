@@ -35,7 +35,7 @@ export default function AddPersonModal({
     createUser: false,
     username: '',
     password: '',
-    is_deceased: false
+    is_deceased: false as boolean
   });
   
   const [loading, setLoading] = useState(false);
