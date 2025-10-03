@@ -573,7 +573,7 @@ export default function Dashboard() {
                       <p className="font-medium text-gray-800 text-sm sm:text-base">Backup</p>
                       <p className="text-xs sm:text-sm text-gray-600">Backup e restauração de dados</p>
                     </div>
-                    </button>
+                  </button>
                 </div>
               </div>
 

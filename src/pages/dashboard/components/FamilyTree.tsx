@@ -750,7 +750,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
 
           {viewMode === 'list' && !hasMore && displayedMembers.length > 0 && (
             <div className="text-center py-4 sm:py-6">
-              <p className="text-gray-500 text-xs sm:text-sm">
+              <p className="text-gray-5  00 text-xs sm:text-sm">
                 Todos os {familyData.members.length} membros foram carregados
               </p>
             </div>
@@ -798,7 +798,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
           {canAddChildren && currentFamily && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+              className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-green-7  00 transition-colors"
             >
               Adicionar primeiro membro
             </button>
@@ -850,7 +850,8 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
               {adminAction === 'edit_parent' ? (
                 <div>
                   <p className="text-sm text-gray-600 mb-4">
-                    Selecione um novo pai/mãe para {selectedMemberForAdmin.first_name} {selectedMemberForAdmin.last_name}
+                    Selecione um novo pai/mãe para {selectedMemberForAdmin.first_name}{' '}
+                    {selectedMemberForAdmin.last_name}
                   </p>
                   <div className="space-y-3">
                     <label className="block text-sm font-medium text-gray-700">
@@ -896,7 +897,10 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3 max-h-40 overflow-y-auto">
                       <p className="text-xs text-red-700 mb-2">Descendentes que serão excluídos:</p>
                       <ul className="text-xs text-red-600 space-y-1">
-                        <li>• {selectedMemberForAdmin.first_name} {selectedMemberForAdmin.last_name} (este membro)</li>
+                        <li>
+                          • {selectedMemberForAdmin.first_name} {selectedMemberForAdmin.last_name} (este
+                          membro)
+                        </li>
                         {memberDescendants.map((desc) => (
                           <li key={desc.id}>• {desc.first_name} {desc.last_name}</li>
                         ))}
