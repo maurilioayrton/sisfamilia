@@ -25,10 +25,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
   const [userChildren, setUserChildren] = useState<string[]>([]);
 
   // Estados para funcionalidades administrativas
-  const [showAdminModal, setShowAdminModal] = useState(false);
   const [selectedMemberForAdmin, setSelectedMemberForAdmin] = useState<any>(null);
-  const [adminAction, setAdminAction] = useState<'edit_parent' | 'delete' | null>(null);
-  const [potentialParents, setPotentialParents] = useState<any[]>([]);
   const [newParentId, setNewParentId] = useState<string>('');
   const [memberDescendants, setMemberDescendants] = useState<any[]>([]);
 
@@ -210,145 +207,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
     return familyData.members.find((m: any) => m.id === member.parent_id);
   };
 
-  // NOVAS FUNÇÕES ADMINISTRATIVAS
-
-  // Abrir modal administrativo
-  const handleAdminAction = async (member: any, action: 'edit_parent' | 'delete') => {
-    setSelectedMemberForAdmin(member);
-    setAdminAction(action);
-
-    if (action === 'edit_parent') {
-      // Carregar potenciais pais
-      const parents = await FamilyService.getPotentialParents(currentFamily, member.id);
-      setPotentialParents(parents);
-      setNewParentId(member.parent_id || '');
-    } else if (action === 'delete') {
-      // Carregar descendentes para mostrar o que será excluído
-      const descendants = await FamilyService.getMemberDescendants(member.id);
-      setMemberDescendants(descendants);
-    }
-
-    setShowAdminModal(true);
-  };
-
-  // Alterar parentesco
-  const handleChangeParent = async () => {
-    if (!selectedMemberForAdmin) return;
-
-    try {
-      setLoading(true);
-
-      const parentIdToSet = newParentId === '' ? null : newParentId;
-      await FamilyService.changeMemberParent(selectedMemberForAdmin.id, parentIdToSet);
-
-      // Mostrar mensagem de sucesso
-      const successMessage = document.createElement('div');
-      successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
-      successMessage.innerHTML = `
-        <div class="flex items-center space-x-3">
-          <i class="ri-check-circle-line text-green-600 text-xl"></i>
-          <div>
-            <p class="font-medium text-green-800">Parentesco Alterado!</p>
-            <p class="text-sm text-green-700">A hierarquia familiar foi atualizada com sucesso.</p>
-          </div>
-        </div>
-      `;
-
-      document.body.appendChild(successMessage);
-      setTimeout(() => {
-        if (document.body.contains(successMessage)) {
-          document.body.removeChild(successMessage);
-        }
-      }, 3000);
-
-      // Recarregar dados
-      await handleFamilyCreated();
-      setShowAdminModal(false);
-    } catch (error) {
-      console.error('Erro ao alterar parentesco:', error);
-      alert(`Erro ao alterar parentesco: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Excluir membro e descendentes
-  const handleDeleteMember = async () => {
-    if (!selectedMemberForAdmin) return;
-
-    const totalToDelete = 1 + memberDescendants.length;
-    const confirmMessage =
-      totalToDelete === 1
-        ? `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}?\n\nEsta ação não pode ser desfeita!`
-        : `Tem certeza que deseja excluir ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} e todos os seus ${memberDescendants.length} descendentes?\n\nSerão excluídos:\n• ${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name}\n${memberDescendants
-            .map(d => `• ${d.first_name} ${d.last_name}`)
-            .join('\n')}\n\nEsta ação NÃO PODE ser desfeita!`;
-
-    if (!confirm(confirmMessage)) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      if (memberDescendants.length > 0) {
-        // Excluir em cascata
-        const result = await FamilyService.deleteMemberAndDescendants(selectedMemberForAdmin.id);
-
-        // Mostrar mensagem de sucesso
-        const successMessage = document.createElement('div');
-        successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
-        successMessage.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <i class="ri-check-circle-line text-green-600 text-xl"></i>
-            <div>
-              <p class="font-medium text-green-800">Exclusão Concluída!</p>
-              <p class="text-sm text-green-700">${result.deletedCount} membros foram excluídos da família.</p>
-            </div>
-          </div>
-        `;
-
-        document.body.appendChild(successMessage);
-        setTimeout(() => {
-          if (document.body.contains(successMessage)) {
-            document.body.removeChild(successMessage);
-          }
-        }, 4000);
-      } else {
-        // Excluir apenas o membro
-        await FamilyService.deleteFamilyMember(selectedMemberForAdmin.id);
-
-        const successMessage = document.createElement('div');
-        successMessage.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50';
-        successMessage.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <i class="ri-check-circle-line text-green-600 text-xl"></i>
-            <div>
-              <p class="font-medium text-green-800">Membro Excluído!</p>
-              <p class="text-sm text-green-700">${selectedMemberForAdmin.first_name} ${selectedMemberForAdmin.last_name} foi removido da família.</p>
-            </div>
-          </div>
-        `;
-
-        document.body.appendChild(successMessage);
-        setTimeout(() => {
-          if (document.body.contains(successMessage)) {
-            document.body.removeChild(successMessage);
-          }
-        }, 3000);
-      }
-
-      // Recarregar dados
-      await handleFamilyCreated();
-      setShowAdminModal(false);
-    } catch (error) {
-      console.error('Erro ao excluir membro:', error);
-      alert(`Erro ao excluir membro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="bg-white rounded-lg shadow p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 space-y-3 sm:space-y-0">
@@ -446,21 +304,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
         </div>
       )}
 
-      {/* Informação sobre poderes administrativos */}
-      {isAdmin && currentFamily && (
-        <div className="mb-4 sm:mb-6 bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
-          <div className="flex items-start space-x-3">
-            <i className="ri-shield-user-line text-red-600 text-lg flex-shrink-0 mt-0.5"></i>
-            <div>
-              <h4 className="font-medium text-red-800 mb-1 text-sm sm:text-base">Poderes Administrativos</h4>
-              <p className="text-xs sm:text-sm text-red-700">
-                Como administrador, você pode alterar o parentesco de qualquer membro e excluir membros (incluindo todos os seus descendentes). Use os botões de ação ao lado de cada membro para gerenciar a hierarquia familiar.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {familyData && familyData.members.length > 0 ? (
         <div className="space-y-4 sm:space-y-6">
           {viewMode === 'tree' ? (
@@ -548,26 +391,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                               </span>
                             )}
                           </div>
-
-                          {/* Botões administrativos */}
-                          {isAdmin && (
-                            <div className="flex space-x-1">
-                              <button
-                                onClick={() => handleAdminAction(member, 'edit_parent')}
-                                className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
-                                title="Alterar parentesco"
-                              >
-                                <i className="ri-family-tree-line"></i>
-                              </button>
-                              <button
-                                onClick={() => handleAdminAction(member, 'delete')}
-                                className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
-                                title="Excluir membro"
-                              >
-                                <i className="ri-delete-bin-line"></i>
-                              </button>
-                            </div>
-                          )}
 
                           {/* Botão de editar para pais/mães editarem filhos */}
                           {canEdit && (
@@ -694,26 +517,6 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
                       </span>
 
                       <div className="flex space-x-1">
-                        {/* Botões administrativos */}
-                        {isAdmin && (
-                          <>
-                            <button
-                              onClick={() => handleAdminAction(member, 'edit_parent')}
-                              className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
-                              title="Alterar parentesco"
-                            >
-                              <i className="ri-family-tree-line"></i>
-                            </button>
-                            <button
-                              onClick={() => handleAdminAction(member, 'delete')}
-                              className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
-                              title="Excluir membro"
-                            >
-                              <i className="ri-delete-bin-line"></i>
-                            </button>
-                          </>
-                        )}
-
                         {canEdit ? (
                           <button
                             onClick={() => handleEditMember(member)}
@@ -748,7 +551,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
 
           {viewMode === 'list' && !hasMore && displayedMembers.length > 0 && (
             <div className="text-center py-4 sm:py-6">
-              <p className="text-gray-5  00 text-xs sm:text-sm">
+              <p className="text-gray-500 text-xs sm:text-sm">
                 Todos os {familyData.members.length} membros foram carregados
               </p>
             </div>
@@ -796,7 +599,7 @@ export default function FamilyTree({ currentFamily, isAdmin }: FamilyTreeProps) 
           {canAddChildren && currentFamily && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-green-7  00 transition-colors"
+              className="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
             >
               Adicionar primeiro membro
             </button>
